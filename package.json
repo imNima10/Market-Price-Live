@@ -2,7 +2,9 @@
   "name": "market-price-live-project",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "db":"dotenv -e .env -- sequelize-cli db:create --config ./config/config.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
