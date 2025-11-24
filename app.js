@@ -1,5 +1,13 @@
-let express=require("express")
+let express = require("express")
+let path = require("path")
+let app = express()
 
-let app=express()
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-module.exports=app
+app.set("view engine", "ejs")
+app.set("views", path.join(__dirname, "views"))
+
+app.use(express.static(path.join(__dirname, "public")))
+
+module.exports = app
