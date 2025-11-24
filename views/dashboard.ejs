@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MarketLive — داشبورد قیمت‌ها</title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v34.0.0/dist/font-face.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="header glass">
+    <div class="brand">
+      <div class="logo">📈</div>
+      <div class="title">
+        <div class="name">MarketLive</div>
+        <div class="sub">داشبورد لحظه‌ای بازارها</div>
+      </div>
+    </div>
+    <nav class="header-actions">
+      <button class="btn small login-btn">ورود</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>آخرین قیمت‌ها</h1>
+    <p class="muted">داده‌ها بصورت نمایشی به‌روزرسانی می‌شوند — آماده اتصال به API</p>
+  </section>
+
+  <main class="grid" id="cardsGrid">
+    <article class="card" data-symbol="USD" tabindex="0">
+      <div class="card-top">
+        <div class="meta">
+          <div class="icon">$</div>
+          <div class="label">
+            <div class="name">دلار (تومان)</div>
+            <div class="small muted">بانک / آزاد</div>
+          </div>
+        </div>
+        <div class="action">
+          <span class="tag up">+0.0%</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="price-row">
+          <div class="price">53,100</div>
+          <div class="currency">تومان</div>
+        </div>
+        <div class="card-footer">
+          <button class="btn ghost small open-details">جزئیات</button>
+          <div class="trend muted">آخرین: ۵ ثانیه پیش</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-symbol="BTC" tabindex="0">
+      <div class="card-top">
+        <div class="meta">
+          <div class="icon">฿</div>
+          <div class="label">
+            <div class="name">بیت‌کوین</div>
+            <div class="small muted">دلار</div>
+          </div>
+        </div>
+        <div class="action">
+          <span class="tag up">+0.0%</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="price-row">
+          <div class="price">42,380</div>
+          <div class="currency">$</div>
+        </div>
+        <div class="card-footer">
+          <button class="btn ghost small open-details">جزئیات</button>
+          <div class="trend muted">آخرین: ۶ ثانیه پیش</div>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bn-item active">📊 داشبورد</button>
+    <button class="bn-item">💱 ارز</button>
+    <button class="bn-item">🥇 طلا</button>
+    <button class="bn-item">⚡ کریپتو</button>
+  </nav>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-panel glass">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="m-icon">📈</div>
+          <div class="m-title">
+            <h3 id="modalTitle">عنوان</h3>
+            <p id="modalSubtitle" class="muted">جزئیات بیشتر</p>
+          </div>
+        </div>
+        <div class="modal-stats">
+          <div class="stat">
+            <div class="label muted">قیمت فعلی</div>
+            <div id="modalPrice" class="big">---</div>
+          </div>
+          <div class="stat">
+            <div class="label muted">تغییر ۲۴ساعته</div>
+            <div id="modalChange">---</div>
+          </div>
+          <div class="stat">
+            <div class="label muted">باز/بسته</div>
+            <div id="modalExtra">---</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
