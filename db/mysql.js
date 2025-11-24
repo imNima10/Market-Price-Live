@@ -10,6 +10,31 @@ let db = new Sequelize({
     logging: false
 })
 
+/** @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any>>} */
+let Assets = require("../models/assets")(db)
+
+/** @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any>>} */
+let Users = require("../models/users")(db)
+
+/** @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any>>} */
+let Favorites = require("../models/favorites")(db)
+
+Assets.belongsToMany(Users, {
+    through: Favorites,
+    foreignKey: "asset_id",
+    otherKey: "user_id"
+});
+
+Users.belongsToMany(Assets, {
+    through: Favorites,
+    foreignKey: "user_id",
+    otherKey: "asset_id"
+});
+
+
 module.exports = {
-    db
+    db,
+    Assets,
+    Users,
+    Favorites
 }
