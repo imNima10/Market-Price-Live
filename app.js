@@ -3,6 +3,7 @@ let path = require("path")
 let app = express()
 
 let authRouter = require("./routers/auth")
+const errorHandler = require("./middlewares/errorHandler")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -14,8 +15,14 @@ app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/auth", authRouter)
 
-app.use((req, res) => {
-    return res.render("404")
+app.use((req, res, next) => {
+    next({
+        status: 404,
+        title: "404 - پیدا نشد",
+        message: "صفحه‌ای که دنبال آن هستید یافت نشد یا حذف شده است."
+    })
 })
+
+app.use(errorHandler)
 
 module.exports = app
