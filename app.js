@@ -15,8 +15,8 @@ app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/auth", authRouter)
 
-app.use((req, res, next) => {
-    next({
+app.use((req, res) => {
+    return res.render("error", {
         status: 404,
         title: "404 - پیدا نشد",
         message: "صفحه‌ای که دنبال آن هستید یافت نشد یا حذف شده است."

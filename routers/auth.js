@@ -6,6 +6,7 @@ let controller=require("./../controllers/auth")
 
 router.route("/login")
 .get(controller.getLoginPage)
+.post(controller.login)
 
 
 module.exports=router

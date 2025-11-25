@@ -11,8 +11,8 @@ async function setUserKey(userKey, email, expireTime) {
 
 async function getUserKeyDetails(userKey) {
     let userKeyPattern = getUserKeyPattern(userKey)
-    let userKey = await redis.get(userKeyPattern)
-    if (!userKey) {
+    let theUserKey = await redis.get(userKeyPattern)
+    if (!theUserKey) {
         return {
             expired: true,
             remainingTime: 0
