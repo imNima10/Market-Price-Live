@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    <%=status%>
+  </title>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v34.0.0/dist/font-face.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/error.css">
+</head>
+
+<body>
+  <div class="error-box glass">
+    <div class="emoji">🔍</div>
+
+    <h1>
+      <%=title%>
+    </h1>
+
+    <p class="desc">
+      <%=message%>
+    </p>
+
+    <button class="btn">
+      <%if(status==401){%>
+        ورود
+        <%}else{%>
+          بازگشت به
+          داشبورد
+          <%}%>
+    </button>
+  </div>
+
+</body>
+
+</html>
