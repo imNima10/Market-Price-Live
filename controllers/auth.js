@@ -62,7 +62,7 @@ exports.otpVerify = async (req, res, next) => {
 
         // TODO (create and use acccess/refresh tokens)
 
-        return res.render("dashboard")
+        return res.redirect("/")
     } catch (error) {
         next(error)
     }
