@@ -16,7 +16,7 @@ let { db } = require("./db/mysql");
             console.log(`server run on port ${process.env.PORT}`);
         })
     } catch (error) {
-        await mongoose.disconnect()
+        await db.close()
         await redis.disconnect()
         throw error
     }
