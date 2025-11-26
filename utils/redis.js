@@ -25,7 +25,7 @@ async function getUserKeyDetails(userKey) {
     return {
         expired: false,
         remainingTime: time,
-        userKey
+        email: theUserKey
     }
 }
 
@@ -61,11 +61,20 @@ async function getOtpDetails(userKey) {
     }
 }
 
+async function delUserKey(userKey) {
+    await redis.del(getUserKeyPattern(userKey))
+}
+async function delOtp(userKey) {
+    await redis.del(getOtpPattern(userKey))
+}
+
 module.exports = {
     getUserKeyPattern,
     setUserKey,
     getOtpPattern,
     setOtp,
     getOtpDetails,
-    getUserKeyDetails
+    getUserKeyDetails,
+    delOtp,
+    delUserKey
 }
