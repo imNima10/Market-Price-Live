@@ -4,6 +4,7 @@ let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUs
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
+let sendOtp = require("../services/sendOtp")
 
 exports.getLoginPage = (req, res) => {
     return res.render("login")
@@ -18,7 +19,7 @@ exports.login = async (req, res, next) => {
         await setUserKey(userKey, email, 5)
         await setOtp(userKey, otp, 1)
 
-        //TODO (send otp)
+        await sendOtp({ email, otp })
 
         return res.render("otp", {
             userKey
