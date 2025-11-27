@@ -5,6 +5,8 @@ let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
 let sendOtp = require("../services/sendOtp")
+let logger= require("../utils/logger")
+let {createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken}= require("../utils/token")
 
 exports.getLoginPage = (req, res) => {
     return res.render("login")
@@ -61,7 +63,10 @@ exports.otpVerify = async (req, res, next) => {
         await delUserKey(userKey)
         await delOtp(userKey)
 
-        // TODO (create and use acccess/refresh tokens)
+        let accessToken=await createAccessToken(user)
+        let refreshToken=await createRefreshToken(user)
+
+        
 
         return res.redirect("/")
     } catch (error) {
