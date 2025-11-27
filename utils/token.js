@@ -34,7 +34,7 @@ exports.createRefreshToken = async (user) => {
 exports.verifyAccessToken = async (token) => {
     try {
         let payload = await JWT.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        let isUserExists = await Users.findOne({ where: { id: payload.id } })
+        let isUserExists = await Users.findOne({ where: { id: payload.id }, raw: true })
         if (!isUserExists) {
             throw new Error("User not found")
         }
@@ -51,7 +51,7 @@ exports.verifyAccessToken = async (token) => {
 exports.verifyRefreshToken = async (token) => {
     try {
         let payload = await JWT.verify(token, process.env.REFRESH_TOKEN_SECRET)
-        let isUserExists = await Users.findOne({ where: { id: payload.id } })
+        let isUserExists = await Users.findOne({ where: { id: payload.id }, raw: true })
         if (!isUserExists) {
             throw new Error("User not found")
         }

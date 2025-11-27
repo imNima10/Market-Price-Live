@@ -2,17 +2,31 @@ let express = require("express")
 let path = require("path")
 let app = express()
 
+let cookieParser = require("cookie-parser")
+let cors = require("cors")
+let helmet = require("helmet")
+
 let authRouter = require("./routers/auth")
 let homeRouter = require("./routers/home")
 const errorHandler = require("./middlewares/errorHandler")
 
+//? middlewares
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.use(cookieParser())
+app.use(cors())
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
+
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
-
 app.use(express.static(path.join(__dirname, "public")))
+
+//? routes
 
 app.use("/", homeRouter)
 app.use("/auth", authRouter)

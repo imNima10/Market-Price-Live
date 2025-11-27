@@ -5,8 +5,9 @@ let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
 let sendOtp = require("../services/sendOtp")
-let logger= require("../utils/logger")
-let {createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken}= require("../utils/token")
+let logger = require("../utils/logger")
+let { createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken } = require("../utils/token")
+let redis = require("../db/redis")
 
 exports.getLoginPage = (req, res) => {
     return res.render("login")
@@ -54,7 +55,8 @@ exports.otpVerify = async (req, res, next) => {
             throw buildError({ title: "Incorrect OTP", message: "Incorrect OTP, please try again", status: 401 })
         }
 
-        let user = await Users.findOne({ where: { email } })
+        let user = await Users.findOne({ where: { email }, raw: true })
+
         if (!user) {
             let isFirstUser = await Users.count()
             user = await Users.create({ email, role: isFirstUser == 0 ? "ADMIN" : "USER" })
@@ -63,10 +65,17 @@ exports.otpVerify = async (req, res, next) => {
         await delUserKey(userKey)
         await delOtp(userKey)
 
-        let accessToken=await createAccessToken(user)
-        let refreshToken=await createRefreshToken(user)
+        let accessToken = await createAccessToken(user)
+        let refreshToken = await createRefreshToken(user)
 
-        
+        res.cookie("access-token", accessToken, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: process.env.ACCESS_TOKEN_EXPIRE * 60 * 1000
+        })
+
+        await redis.del(`refresh-token:${user.id}`)
+        await redis.set(`refresh-token:${user.id}`, refreshToken, "EX", process.env.REFRESH_TOKEN_EXPIRE * 24 * 60 * 60)
 
         return res.redirect("/")
     } catch (error) {
