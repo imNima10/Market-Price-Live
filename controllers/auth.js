@@ -1,6 +1,6 @@
 let buildError = require("../utils/buildError")
 let { createOtp } = require("../utils/otp")
-let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUserKeyPattern, delUserKey, delOtp } = require("../utils/redis")
+let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUserKeyPattern, delUserKey, delOtp, deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
@@ -74,9 +74,8 @@ exports.otpVerify = async (req, res, next) => {
             maxAge: process.env.ACCESS_TOKEN_EXPIRE * 60 * 1000
         })
 
-        await redis.del(`refresh-token:${user.id}`)
-        await redis.set(`refresh-token:${user.id}`, refreshToken, "EX", process.env.REFRESH_TOKEN_EXPIRE * 24 * 60 * 60)
-
+        await deleteRefreshToken(user)
+        await saveRefreshToken(user, refreshToken)
         return res.redirect("/p")
     } catch (error) {
         next(error)
@@ -91,6 +90,8 @@ exports.logout = async (req, res, next) => {
             sameSite: "strict",
         })
         await redis.del(`refresh-token:${user.id}`)
+
+        await deleteRefreshToken(user)
 
         return res.redirect("/auth/login")
     } catch (error) {

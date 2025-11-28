@@ -67,6 +67,12 @@ async function delUserKey(userKey) {
 async function delOtp(userKey) {
     await redis.del(getOtpPattern(userKey))
 }
+async function deleteRefreshToken(user) {
+    await redis.del(`refresh-token:${user.id}`)
+}
+async function saveRefreshToken(user, refreshToken) {
+    await redis.set(`refresh-token:${user.id}`, refreshToken, "EX", process.env.REFRESH_TOKEN_EXPIRE * 24 * 60 * 60)
+}
 
 module.exports = {
     getUserKeyPattern,
@@ -76,5 +82,7 @@ module.exports = {
     getOtpDetails,
     getUserKeyDetails,
     delOtp,
-    delUserKey
+    delUserKey,
+    deleteRefreshToken,
+    saveRefreshToken
 }
