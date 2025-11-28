@@ -66,21 +66,37 @@
                   <%=asset.changePercent%>
                 </span>
                 <%}%>
-                  <%if(asset.changeValue.startsWith("-")){%>
-                    <span class="tagValue down">
-                      <%=asset.changeValue?.split("-")[1]%> -
-                    </span>
-                    <%}else{%>
-                      <span class="tagValue up">
-                        <%=asset.changeValue%>
+                  <%if(action=="crypto"){%>
+                    <%if(asset.price2.startsWith("-")){%>
+                      <span class="tagValue down">
+                        <%=asset.price2?.split("-")[1]%> -
                       </span>
-                      <%}%>
+                      <%}else{%>
+                        <span class="tagValue up">
+                          <%=asset.price2%>
+                        </span>
+                        <%}%>
+                          <%}else{%>
+                            <%if(asset.changeValue.startsWith("-")){%>
+                              <span class="tagValue down">
+                                <%=asset.changeValue?.split("-")[1]%> -
+                              </span>
+                              <%}else{%>
+                                <span class="tagValue up">
+                                  <%=asset.changeValue%>
+                                </span>
+                                <%}%>
+                                  <%}%>
           </div>
         </div>
         <div class="card-body">
           <div class="price-row">
             <div class="price">
-              <%=asset.price%>
+              <%if(action=="crypto"){%>
+                <%=asset.price1%>
+                <%}else{%>
+                  <%=asset.price%>
+                    <%}%>
             </div>
             <div class="currency">تومان</div>
           </div>
@@ -96,7 +112,7 @@
   <form method="get">
     <nav class="bottom-nav" id="bottomNav">
       <% switch (action) { case "gold" : %>
-        <button class="bn-item" formaction="/p" >📊 داشبورد</button>
+        <button class="bn-item" formaction="/p">📊 داشبورد</button>
         <button class="bn-item" formaction="/p/currency">💱 ارز</button>
         <button class="bn-item active">🥇 طلا</button>
         <button class="bn-item" formaction="/p/crypto">⚡ کریپتو</button>
