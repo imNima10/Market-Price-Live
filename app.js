@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 //? routes
 
-app.use("/", homeRouter)
+app.use("/p", homeRouter)
 app.use("/auth", authRouter)
 
 app.use((req, res) => {

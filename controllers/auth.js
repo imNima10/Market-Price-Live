@@ -77,7 +77,7 @@ exports.otpVerify = async (req, res, next) => {
         await redis.del(`refresh-token:${user.id}`)
         await redis.set(`refresh-token:${user.id}`, refreshToken, "EX", process.env.REFRESH_TOKEN_EXPIRE * 24 * 60 * 60)
 
-        return res.redirect("/")
+        return res.redirect("/p")
     } catch (error) {
         next(error)
     }
