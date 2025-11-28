@@ -94,9 +94,9 @@
             <div class="price">
               <%if(action=="crypto"){%>
                 <%=asset.price1%>
-                <%}else{%>
-                  <%=asset.price%>
-                    <%}%>
+                  <%}else{%>
+                    <%=asset.price%>
+                      <%}%>
             </div>
             <div class="currency">تومان</div>
           </div>
@@ -113,25 +113,35 @@
     <nav class="bottom-nav" id="bottomNav">
       <% switch (action) { case "gold" : %>
         <button class="bn-item" formaction="/p">📊 داشبورد</button>
-        <button class="bn-item" formaction="/p/currency">💱 ارز</button>
-        <button class="bn-item active">🥇 طلا</button>
-        <button class="bn-item" formaction="/p/crypto">⚡ کریپتو</button>
+        <button class="bn-item" formaction="/p/currency">💲 ارز</button>
+        <button class="bn-item active">🪙 طلا</button>
+        <button class="bn-item" formaction="/p/crypto">💎 کریپتو</button>
+        <button class="bn-item" formaction="/p/favorites">⭐ مورد علاقه ها</button>
         <% break; case "currency" : %>
           <button class="bn-item" formaction="/p">📊 داشبورد</button>
-          <button class="bn-item active">💱 ارز</button>
-          <button class="bn-item" formaction="/p/gold">🥇 طلا</button>
-          <button class="bn-item" formaction="/p/crypto">⚡ کریپتو</button>
+          <button class="bn-item active">💲 ارز</button>
+          <button class="bn-item" formaction="/p/gold">🪙 طلا</button>
+          <button class="bn-item" formaction="/p/crypto">💎 کریپتو</button>
+          <button class="bn-item" formaction="/p/favorites">⭐ مورد علاقه ها</button>
           <% break; case "crypto" : %>
             <button class="bn-item" formaction="/p">📊 داشبورد</button>
-            <button class="bn-item" formaction="/p/currency">💱 ارز</button>
-            <button class="bn-item" formaction="/p/gold">🥇 طلا</button>
-            <button class="bn-item active">⚡ کریپتو</button>
+            <button class="bn-item" formaction="/p/currency">💲 ارز</button>
+            <button class="bn-item" formaction="/p/gold">🪙 طلا</button>
+            <button class="bn-item active">💎 کریپتو</button>
+            <button class="bn-item" formaction="/p/favorites">⭐ مورد علاقه ها</button>
             <% break; case "dashboard" : %>
               <button class="bn-item active">📊 داشبورد</button>
-              <button class="bn-item" formaction="/p/currency">💱 ارز</button>
-              <button class="bn-item" formaction="/p/gold">🥇 طلا</button>
-              <button class="bn-item" formaction="/p/crypto">⚡ کریپتو</button>
-              <% break; } %>
+              <button class="bn-item" formaction="/p/currency">💲 ارز</button>
+              <button class="bn-item" formaction="/p/gold">🪙 طلا</button>
+              <button class="bn-item" formaction="/p/crypto">💎 کریپتو</button>
+              <button class="bn-item" formaction="/p/favorites">⭐ مورد علاقه ها</button>
+              <% break; case "favorites" : %>
+                <button class="bn-item" formaction="/p">📊 داشبورد</button>
+                <button class="bn-item" formaction="/p/currency">💲 ارز</button>
+                <button class="bn-item" formaction="/p/gold">🪙 طلا</button>
+                <button class="bn-item" formaction="/p/crypto">💎 کریپتو</button>
+                <button class="bn-item active">⭐ مورد علاقه ها</button>
+                <% break; } %>
     </nav>
   </form>
 
