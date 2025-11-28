@@ -82,3 +82,18 @@ exports.otpVerify = async (req, res, next) => {
         next(error)
     }
 }
+exports.logout = async (req, res, next) => {
+    try {
+        let user = req.user
+
+        res.clearCookie("access-token", {
+            httpOnly: true,
+            sameSite: "strict",
+        })
+        await redis.del(`refresh-token:${user.id}`)
+
+        return res.redirect("/auth/login")
+    } catch (error) {
+        next(error)
+    }
+}
