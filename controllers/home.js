@@ -1,7 +1,7 @@
-let api = require("../services/api")
+let { getAssetsByAction } = require("../utils/getAssets")
 exports.getDashboard = async (req, res, next) => {
-    let assets=[]//TODO
-    
+    let assets = []//TODO
+
     return res.render("dashboard", {
         action: "dashboard",
         isLogin: false,
@@ -11,9 +11,9 @@ exports.getDashboard = async (req, res, next) => {
 
 exports.getByAction = async (req, res, next) => {
     let { action } = req.params
-    let assets = await api.get(action)
+    let assets = await getAssetsByAction(action)
     return res.render("dashboard", {
-        action: action,
+        action,
         isLogin: true,
         assets
     })
