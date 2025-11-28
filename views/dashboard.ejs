@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MarketLive — داشبورد قیمت‌ها</title>
+  <title>MarketLive🚀</title>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v34.0.0/dist/font-face.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/index.css">
 </head>
@@ -16,77 +16,105 @@
       <div class="logo">📈</div>
       <div class="title">
         <div class="name">MarketLive</div>
-        <div class="sub">داشبورد لحظه‌ای بازارها</div>
+        <% switch (action) { case "gold" : %>
+          <div class="sub">قیمت لحظه‌ای طلاها</div>
+          <% break; case "currency" : %>
+            <div class="sub">قیمت لحظه‌ای ارزها</div>
+            <% break; case "crypto" : %>
+              <div class="sub">قیمت لحظه‌ای کریپتو ها</div>
+              <% break; case "dashboard" : %>
+                <div class="sub">داشبورد لحظه‌ای بازارها</div>
+                <% break; } %>
       </div>
     </div>
     <nav class="header-actions">
-      <button class="btn small login-btn">ورود</button>
+      <%if(isLogin){%>
+        <button class="btn small login-btn">خروج</button>
+        <%}else{%>
+          <button class="btn small login-btn">ورود</button>
+          <%}%>
     </nav>
   </header>
 
   <section class="hero">
     <h1>آخرین قیمت‌ها</h1>
-    <p class="muted">داده‌ها بصورت نمایشی به‌روزرسانی می‌شوند — آماده اتصال به API</p>
+    <p class="muted">داده ها هر دقیقه به روزرسانی میشوند⌛</p>
   </section>
 
   <main class="grid" id="cardsGrid">
-    <article class="card" data-symbol="USD" tabindex="0">
-      <div class="card-top">
-        <div class="meta">
-          <div class="icon">$</div>
-          <div class="label">
-            <div class="name">دلار (تومان)</div>
-            <div class="small muted">بانک / آزاد</div>
+    <%assets.forEach(asset=>{%>
+      <article class="card" data-symbol="<%=asset.symbol%>" tabindex="0">
+        <div class="card-top">
+          <div class="meta">
+            <div class="icon">$</div>
+            <div class="label">
+              <div class="name">
+                <%=asset.title%>
+              </div>
+              <div class="small muted">
+                <%=asset.enTitle%>
+              </div>
+            </div>
+          </div>
+          <div class="action">
+            <%if(asset.changePercent.startsWith("-")){%>
+              <span class="tag down">
+                <%=asset.changePercent?.split("-")[1]%> -
+              </span>
+              <%}else{%>
+                <span class="tag up">
+                  <%=asset.changePercent%>
+                </span>
+                <%}%>
+                  <%if(asset.changeValue.startsWith("-")){%>
+                    <span class="tagValue down">
+                      <%=asset.changeValue?.split("-")[1]%> -
+                    </span>
+                    <%}else{%>
+                      <span class="tagValue up">
+                        <%=asset.changeValue%>
+                      </span>
+                      <%}%>
           </div>
         </div>
-        <div class="action">
-          <span class="tag up">+0.0%</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="price-row">
-          <div class="price">53,100</div>
-          <div class="currency">تومان</div>
-        </div>
-        <div class="card-footer">
-          <button class="btn ghost small open-details">جزئیات</button>
-          <div class="trend muted">آخرین: ۵ ثانیه پیش</div>
-        </div>
-      </div>
-    </article>
-
-    <article class="card" data-symbol="BTC" tabindex="0">
-      <div class="card-top">
-        <div class="meta">
-          <div class="icon">฿</div>
-          <div class="label">
-            <div class="name">بیت‌کوین</div>
-            <div class="small muted">دلار</div>
+        <div class="card-body">
+          <div class="price-row">
+            <div class="price">
+              <%=asset.price%>
+            </div>
+            <div class="currency">تومان</div>
+          </div>
+          <div class="card-footer">
+            <button class="btn ghost small open-details">جزئیات</button>
+            <!-- <div class="trend muted">آخرین: ۵ ثانیه پیش</div>  -->
           </div>
         </div>
-        <div class="action">
-          <span class="tag up">+0.0%</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="price-row">
-          <div class="price">42,380</div>
-          <div class="currency">$</div>
-        </div>
-        <div class="card-footer">
-          <button class="btn ghost small open-details">جزئیات</button>
-          <div class="trend muted">آخرین: ۶ ثانیه پیش</div>
-        </div>
-      </div>
-    </article>
-
+      </article>
+      <%})%>
   </main>
 
   <nav class="bottom-nav" id="bottomNav">
-    <button class="bn-item active">📊 داشبورد</button>
-    <button class="bn-item">💱 ارز</button>
-    <button class="bn-item">🥇 طلا</button>
-    <button class="bn-item">⚡ کریپتو</button>
+    <% switch (action) { case "gold" : %>
+      <button class="bn-item">📊 داشبورد</button>
+      <button class="bn-item">💱 ارز</button>
+      <button class="bn-item active">🥇 طلا</button>
+      <button class="bn-item">⚡ کریپتو</button>
+      <% break; case "currency" : %>
+        <button class="bn-item">📊 داشبورد</button>
+        <button class="bn-item active">💱 ارز</button>
+        <button class="bn-item">🥇 طلا</button>
+        <button class="bn-item">⚡ کریپتو</button>
+        <% break; case "crypto" : %>
+          <button class="bn-item">📊 داشبورد</button>
+          <button class="bn-item">💱 ارز</button>
+          <button class="bn-item">🥇 طلا</button>
+          <button class="bn-item active">⚡ کریپتو</button>
+          <% break; case "dashboard" : %>
+            <button class="bn-item active">📊 داشبورد</button>
+            <button class="bn-item">💱 ارز</button>
+            <button class="bn-item">🥇 طلا</button>
+            <button class="bn-item">⚡ کریپتو</button>
+            <% break; } %>
   </nav>
 
   <div id="detailModal" class="modal hidden">
@@ -106,12 +134,12 @@
             <div id="modalPrice" class="big">---</div>
           </div>
           <div class="stat">
-            <div class="label muted">تغییر ۲۴ساعته</div>
+            <div class="label muted">درصد تغییر</div>
             <div id="modalChange">---</div>
           </div>
           <div class="stat">
-            <div class="label muted">باز/بسته</div>
-            <div id="modalExtra">---</div>
+            <div class="label muted">قیمت تغییر</div>
+            <div id="modalChangeValue">---</div>
           </div>
         </div>
       </div>

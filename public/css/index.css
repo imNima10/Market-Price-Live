@@ -188,6 +188,27 @@ body {
     box-shadow: 0 6px 18px rgba(255, 0, 120, 0.04);
 }
 
+.tagValue {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+
+.tagValue.up {
+    background: linear-gradient(90deg, rgba(66, 255, 155, 0.12), rgba(0, 255, 120, 0.06));
+    color: #7af3b0;
+    box-shadow: 0 6px 18px rgba(0, 255, 120, 0.04);
+}
+
+.tagValue.down {
+    background: linear-gradient(90deg, rgba(255, 77, 120, 0.08), rgba(255, 0, 120, 0.04));
+    color: #ff8fb3;
+    box-shadow: 0 6px 18px rgba(255, 0, 120, 0.04);
+}
+
 .price-row {
     display: flex;
     align-items: baseline;

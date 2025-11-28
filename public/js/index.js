@@ -9,9 +9,11 @@ openBtns.forEach(btn=>{
     const name = card.querySelector(".label .name").textContent;
     const price = card.querySelector(".price").textContent + " " + card.querySelector(".currency").textContent;
     const change = card.querySelector(".tag").textContent;
+    const changeValue = card.querySelector(".tagValue").textContent;
     modal.querySelector("#modalTitle").textContent = name;
     modal.querySelector("#modalPrice").textContent = price;
     modal.querySelector("#modalChange").textContent = change;
+    modal.querySelector("#modalChangeValue").textContent = changeValue;
     modal.classList.remove("hidden");
     document.body.classList.add("dimmed");
   });
