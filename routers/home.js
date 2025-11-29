@@ -7,8 +7,8 @@ let controller = require("./../controllers/home")
 let { authGuard } = require("./../middlewares/guards")
 
 router.route("/")
-    .get(controller.getDashboard)
+    .get(authGuard(false), controller.getDashboard)
 router.route("/:action")
-    .get(authGuard, controller.getByAction)
+    .get(authGuard(), controller.getByAction)
 
 module.exports = router

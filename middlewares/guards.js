@@ -1,22 +1,28 @@
 let buildError = require("../utils/buildError")
 let { verifyAccessToken } = require("../utils/token")
 
-exports.authGuard = async (req, res, next) => {
-    try {
-        let accessToken = req.cookies["access-token"];
-        
-        if (!accessToken) {
-            throw buildError({ status: 401, message: "User not found" })
-        }
-        
-        let user = await verifyAccessToken(accessToken)
+exports.authGuard = (isLoginImportant = true) => {
+    return async (req, res, next) => {
+        try {
+            let accessToken = req.cookies["access-token"];
 
-        req.user = user
-        req.isAdmin = user.role == "ADMIN" ? true : false
-        return next()
-    } catch (error) {
-        error.title = "Unauthorized access"
-        next(error)
+            if (!accessToken) {
+                if (isLoginImportant) {
+                    throw buildError({ status: 401, message: "User not found" })
+                } else {
+                    return next()
+                }
+            }
+
+            let user = await verifyAccessToken(accessToken)
+
+            req.user = user
+            req.isAdmin = user.role == "ADMIN" ? true : false
+            return next()
+        } catch (error) {
+            error.title = "Unauthorized access"
+            next(error)
+        }
     }
 }
 

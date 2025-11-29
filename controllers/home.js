@@ -4,7 +4,7 @@ exports.getDashboard = async (req, res, next) => {
 
     return res.render("dashboard", {
         action: "dashboard",
-        isLogin: false,
+        isLogin: !!req.user,
         assets
     })
 }
