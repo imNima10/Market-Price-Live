@@ -73,6 +73,9 @@ async function deleteRefreshToken(user) {
 async function saveRefreshToken(user, refreshToken) {
     await redis.set(`refresh-token:${user.id}`, refreshToken, "EX", process.env.REFRESH_TOKEN_EXPIRE * 24 * 60 * 60)
 }
+async function saveAssetsToRedis(action, assets) {
+    await redis.set(`assets:${action}`, JSON.stringify(assets));
+}
 
 module.exports = {
     getUserKeyPattern,
@@ -84,5 +87,6 @@ module.exports = {
     delOtp,
     delUserKey,
     deleteRefreshToken,
-    saveRefreshToken
+    saveRefreshToken,
+    saveAssetsToRedis
 }

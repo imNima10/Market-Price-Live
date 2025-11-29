@@ -1,27 +1,13 @@
-let redis = require("../db/redis");
-let api = require("../services/api")
+let { getAssetsByActionForSave } = require("./assetsController");
+let { saveAssetsToRedis } = require("./redis");
 
 let actions = ["gold", "crypto", "currency"];
 let index = 0;
 
-async function getFromApi(action) {
-    try {
-        let assets = await api.get(action)
-
-        return assets
-    } catch (error) {
-        throw error
-    }
-}
-
-async function saveToRedis(assets, action) {
-    await redis.set(`assets:${action}`, JSON.stringify(assets));
-}
-
 async function getAndSave(action) {
     try {
-        let assets = await getFromApi(action)
-        await saveToRedis(assets, action)
+        let assets = await getAssetsByActionForSave(action)
+        await saveAssetsToRedis(action, assets)
 
         console.log(`[${new Date().toLocaleTimeString()}] Updated ${action}`);
     } catch (error) {

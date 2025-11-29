@@ -1,19 +1,23 @@
 let { Assets } = require("../db/mysql")
 let api = require("../services/api")
 
-async function getAssetsFromApi(action) {
-    let assets = await api.get(action)
-
-    return assets
-}
-
-async function getAssetsFromDb(action) {
+async function getAssetsFromMysqlDB(action) {
     let assets = await Assets.findAll({
         where: { type: action },
         raw: true
     })
 
     return assets
+}
+
+async function getAssetsFromApi(action) {
+    try {
+        let assets = await api.get(action)
+
+        return assets
+    } catch (error) {
+        throw error
+    }
 }
 
 async function selectAssets(dbAssets, allAssets) {
@@ -28,11 +32,11 @@ async function selectAssets(dbAssets, allAssets) {
     return assets
 }
 
-exports.getAssetsByAction = async (action) => {
+exports.getAssetsByActionForSave = async (action) => {
     try {
-        let dbAssets = await getAssetsFromDb(action)
-        let apiAssets = await getAssetsFromApi(action)
-        let assets = await selectAssets(dbAssets,apiAssets)
+        let dbAssets = await getAssetsFromMysqlDB(action)
+        let allAssets = await getAssetsFromApi(action)
+        let assets = await selectAssets(dbAssets, allAssets)
         return assets
     } catch (error) {
         throw error
