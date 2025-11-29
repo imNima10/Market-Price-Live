@@ -76,6 +76,11 @@ async function saveRefreshToken(user, refreshToken) {
 async function saveAssetsToRedis(action, assets) {
     await redis.set(`assets:${action}`, JSON.stringify(assets));
 }
+async function getAssetsByAction(action) {
+    let assets = await redis.get(`assets:${action}`);
+    assets=JSON.parse(assets)
+    return assets
+}
 
 module.exports = {
     getUserKeyPattern,
@@ -88,5 +93,6 @@ module.exports = {
     delUserKey,
     deleteRefreshToken,
     saveRefreshToken,
-    saveAssetsToRedis
+    saveAssetsToRedis,
+    getAssetsByAction
 }

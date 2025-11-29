@@ -1,5 +1,6 @@
 let { Assets } = require("../db/mysql")
 let api = require("../services/api")
+let { getAssetsByAction } = require("./redis")
 
 async function getAssetsFromMysqlDB(action) {
     let assets = await Assets.findAll({
@@ -7,6 +8,11 @@ async function getAssetsFromMysqlDB(action) {
         raw: true
     })
 
+    return assets
+}
+
+async function getAssetsFromRedis(action) {
+    let assets = await getAssetsByAction(action)
     return assets
 }
 
@@ -37,6 +43,14 @@ exports.getAssetsByActionForSave = async (action) => {
         let dbAssets = await getAssetsFromMysqlDB(action)
         let allAssets = await getAssetsFromApi(action)
         let assets = await selectAssets(dbAssets, allAssets)
+        return assets
+    } catch (error) {
+        throw error
+    }
+}
+exports.getAssetsByAction = async (action) => {
+    try {
+        let assets = await getAssetsFromRedis(action)
         return assets
     } catch (error) {
         throw error
