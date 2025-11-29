@@ -1,6 +1,7 @@
 let app = require("./app")
 let redis = require("./db/redis")
-let { db } = require("./db/mysql");
+let { db } = require("./db/mysql")
+let apiSave = require("./utils/apiSave");
 
 (async function () {
     try {
@@ -15,6 +16,8 @@ let { db } = require("./db/mysql");
         await app.listen(process.env.PORT, () => {
             console.log(`server run on port ${process.env.PORT}`);
         })
+
+        apiSave()
     } catch (error) {
         await db.close()
         await redis.disconnect()
