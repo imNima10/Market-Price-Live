@@ -24,7 +24,9 @@
               <div class="sub">قیمت لحظه‌ای کریپتو ها</div>
               <% break; case "dashboard" : %>
                 <div class="sub">داشبورد لحظه‌ای بازارها</div>
-                <% break; } %>
+                <% break; case "favorites" : %>
+                  <div class="sub">مورد علاقه های شما</div>
+                  <% break; } %>
       </div>
     </div>
     <nav class="header-actions">
@@ -66,7 +68,7 @@
                   <%=asset.changePercent%>
                 </span>
                 <%}%>
-                  <%if(action=="crypto"){%>
+                  <%if(asset.price2){%>
                     <%if(asset.price2.startsWith("-")){%>
                       <span class="tagValue down">
                         <%=asset.price2?.split("-")[1]%> -
@@ -92,7 +94,7 @@
         <div class="card-body">
           <div class="price-row">
             <div class="price">
-              <%if(action=="crypto"){%>
+              <%if(asset.price1){%>
                 <%=asset.price1%>
                   <%}else{%>
                     <%=asset.price%>
