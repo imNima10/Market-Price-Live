@@ -1,4 +1,4 @@
-let { Assets, Users } = require("../db/mysql")
+let { Assets, Users, Favorites } = require("../db/mysql")
 let api = require("../services/api")
 let { getAssetsByAction } = require("./redis")
 
@@ -45,10 +45,10 @@ async function selectFavAssetsFromRedis(favAssets) {
     );
 
     let allAssets = results.flat();
-    
-    
+
+
     let assets = []
-    allAssets.forEach(asset => {        
+    allAssets.forEach(asset => {
         favAssets.forEach(favAsset => {
 
             if (asset.symbol == favAsset.dataValues.symbol && asset.title == favAsset.dataValues.title) {
@@ -73,6 +73,42 @@ async function getFavoritesAssetsFromMysqlDB(user) {
     })
 
     return assets.assets
+}
+
+async function getAssetWithSymbol(symbol) {
+    let assets = await Assets.findOne({
+        where: {
+            symbol
+        }
+    })
+
+    return assets
+}
+
+async function checkFavoritesAndUpdate(asset, user) {
+    let favAsset = await Favorites.findOne({
+        where: {
+            asset_id: asset.id,
+            user_id: user.id
+        }
+    })
+
+    if (favAsset) {
+        await favAsset.destroy()
+        return {
+            status: true,
+            add: false
+        }
+    } else {
+        await Favorites.create({
+            asset_id: asset.id,
+            user_id: user.id
+        })
+        return {
+            status: true,
+            add: true
+        }
+    }
 }
 
 exports.getAssetsByActionForSave = async (action) => {
@@ -102,6 +138,17 @@ exports.getFavoritesAssets = async (user) => {
         }
         let assets = await selectFavAssetsFromRedis(favAssets)
         return assets
+    } catch (error) {
+        throw error
+    }
+}
+exports.addOrRemoveFavoriteAsset = async (user, symbol) => {
+    try {
+        let asset = await getAssetWithSymbol(symbol)
+
+        let response = await checkFavoritesAndUpdate(asset, user)
+
+        return response
     } catch (error) {
         throw error
     }

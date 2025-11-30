@@ -7,6 +7,7 @@ let cors = require("cors")
 let helmet = require("helmet")
 
 let authRouter = require("./routers/auth")
+let userRouter = require("./routers/user")
 let homeRouter = require("./routers/home")
 const errorHandler = require("./middlewares/errorHandler")
 
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/p", homeRouter)
 app.use("/auth", authRouter)
+app.use("/user", userRouter)
 
 app.use((req, res) => {
     return res.render("error", {
