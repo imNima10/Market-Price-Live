@@ -1,4 +1,4 @@
-let { Assets, Users, Favorites } = require("../db/mysql")
+let { Assets, Users, Favorites, Populars } = require("../db/mysql")
 let api = require("../services/api")
 let { getAssetsByAction } = require("./redis")
 
@@ -38,15 +38,17 @@ async function selectAssets(dbAssets, allAssets) {
     return assets
 }
 
-async function selectFavAssetsFromRedis(favAssets) {
+async function getAllAssetsFromRedis() {
     let actions = ["gold", "crypto", "currency"]
     let results = await Promise.all(
         actions.map(action => getAssetsFromRedis(action))
     );
 
     let allAssets = results.flat();
+    return allAssets
+}
 
-
+async function selectFavAssetsFromRedis(allAssets, favAssets) {
     let assets = []
     allAssets.forEach(asset => {
         favAssets.forEach(favAsset => {
@@ -81,6 +83,24 @@ async function getAssetWithSymbol(symbol) {
             symbol
         }
     })
+
+    return assets
+}
+
+async function getThePopularAssets() {
+    let assets = await Populars.findAll({
+        attributes: [],
+        include: [
+            {
+                model: Assets,
+                as: "asset",
+                attributes: { exclude: ["updated_at", "created_at"] },
+
+            }
+        ]
+    })
+
+    assets = assets.map(p => p.asset);
 
     return assets
 }
@@ -156,7 +176,9 @@ exports.getFavoritesAssets = async (user) => {
         if (!favAssets.length) {
             return []
         }
-        let assets = await selectFavAssetsFromRedis(favAssets)
+
+        let allAssets = await getAllAssetsFromRedis()
+        let assets = await selectFavAssetsFromRedis(allAssets, favAssets)
         assets = await updateAssetsForAddFavorite(assets, user)
         return assets
     } catch (error) {
@@ -170,6 +192,20 @@ exports.addOrRemoveFavoriteAsset = async (user, symbol) => {
         let response = await checkFavoritesAndUpdate(asset, user)
 
         return response
+    } catch (error) {
+        throw error
+    }
+}
+exports.getPopularAssets = async (user) => {
+    try {
+        let popAsset = await getThePopularAssets()
+
+        let allAssets = await getAllAssetsFromRedis()
+
+        allAssets = await selectFavAssetsFromRedis(allAssets, popAsset)
+
+        let assets = await updateAssetsForAddFavorite(allAssets, user)
+        return assets
     } catch (error) {
         throw error
     }

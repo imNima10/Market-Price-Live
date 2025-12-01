@@ -5,15 +5,16 @@ exports.authGuard = (isLoginImportant = true) => {
     return async (req, res, next) => {
         try {
             let accessToken = req.cookies["access-token"];
-
+            
             if (!accessToken) {
                 if (isLoginImportant) {
+                    
                     throw buildError({ status: 401, message: "User not found" })
                 } else {
                     return next()
                 }
             }
-
+            
             let user = await verifyAccessToken(accessToken)
 
             req.user = user
