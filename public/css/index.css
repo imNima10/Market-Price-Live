@@ -385,3 +385,23 @@ body {
         padding: 12px;
     }
 }
+
+.fav-btn{
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  color: #aab0c2;
+  margin-right: 6px;
+  transition: all .25s ease;
+}
+
+.fav-btn:hover{
+  transform: scale(1.2);
+  color: gold;
+}
+
+.fav-btn.active{
+  color: gold;
+  text-shadow: 0 0 8px rgba(255,215,0,.6);
+}

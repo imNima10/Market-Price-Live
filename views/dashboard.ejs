@@ -105,6 +105,15 @@
           <div class="card-footer">
             <button class="btn ghost small open-details">جزئیات</button>
             <!-- <div class="trend muted">آخرین: ۵ ثانیه پیش</div>  -->
+            <%if(asset.isFav){%>
+              <button class="fav-btn active" title="افزودن به علاقه‌مندی">
+                ☆
+              </button>
+              <%}else{%>
+                <button class="fav-btn" title="افزودن به علاقه‌مندی">
+                  ☆
+                </button>
+                <%}%>
           </div>
         </div>
       </article>

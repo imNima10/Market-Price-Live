@@ -17,7 +17,7 @@ exports.getByAction = async (req, res, next) => {
     if (action == "favorites") {
         assets = await getFavoritesAssets(user)
     } else {
-        assets = await getAssetsByAction(action)
+        assets = await getAssetsByAction(action,user)
     }
     return res.render("dashboard", {
         action,
