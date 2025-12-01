@@ -13,6 +13,6 @@ router.route("/verify")
     .post(controller.otpVerify)
 
 router.route("/logout")
-    .get(authGuard(), controller.logout)
+    .post(authGuard(), controller.logout)
 
 module.exports = router

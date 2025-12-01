@@ -31,9 +31,13 @@
     </div>
     <nav class="header-actions">
       <%if(isLogin){%>
-        <button class="btn small login-btn">خروج</button>
+        <form action="/auth/logout" method="post">
+          <button class="btn small login-btn">خروج</button>
+        </form>
         <%}else{%>
-          <button class="btn small login-btn">ورود</button>
+          <form action="/auth/login" method="get">
+            <button class="btn small login-btn">ورود</button>
+          </form>
           <%}%>
     </nav>
   </header>
