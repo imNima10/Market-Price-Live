@@ -19,6 +19,9 @@ let Users = require("../models/users")(db)
 /** @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any>>} */
 let Favorites = require("../models/favorites")(db)
 
+/** @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any>>} */
+let Populars = require("../models/populars")(db)
+
 Assets.belongsToMany(Users, {
     through: Favorites,
     foreignKey: "asset_id",
@@ -31,10 +34,20 @@ Users.belongsToMany(Assets, {
     otherKey: "asset_id"
 });
 
+Assets.hasMany(Populars, {
+  foreignKey: "asset_id",
+  as: "populars"
+})
+
+Populars.belongsTo(Assets, {
+  foreignKey: "asset_id",
+  as: "asset"
+})
 
 module.exports = {
     db,
     Assets,
     Users,
-    Favorites
+    Favorites,
+    Populars
 }

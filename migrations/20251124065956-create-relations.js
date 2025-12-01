@@ -31,6 +31,19 @@ module.exports = {
         transaction
       });
 
+      await queryInterface.addConstraint("populars", {
+        fields: ["asset_id"],
+        type: "foreign key",
+        name: "fk_populars_asset_id",
+        references: {
+          table: "assets",
+          field: "id"
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        transaction
+      });
+
       await transaction.commit();
     } catch (error) {
       await transaction.rollback();
@@ -50,6 +63,12 @@ module.exports = {
       await queryInterface.removeConstraint(
         "favorites",
         "fk_favorites_asset_id",
+        { transaction }
+      );
+
+      await queryInterface.removeConstraint(
+        "populars",
+        "fk_populars_asset_id",
         { transaction }
       );
 
