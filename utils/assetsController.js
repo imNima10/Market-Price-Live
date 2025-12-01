@@ -132,20 +132,22 @@ async function checkFavoritesAndUpdate(asset, user) {
 }
 
 async function updateAssetsForAddFavorite(allAssets, user) {
-    let favAssets = await getFavoritesAssetsFromMysqlDB(user)
 
     allAssets.forEach(asset => {
         asset.isFav = false
     })
 
 
-    favAssets.forEach(favAsset => {
-        allAssets.forEach(asset => {
-            if (asset.symbol == favAsset.dataValues.symbol && asset.title == favAsset.dataValues.title) {
-                asset.isFav = true
-            }
+    if (user) {
+        let favAssets = await getFavoritesAssetsFromMysqlDB(user)
+        favAssets.forEach(favAsset => {
+            allAssets.forEach(asset => {
+                if (asset.symbol == favAsset.dataValues.symbol && asset.title == favAsset.dataValues.title) {
+                    asset.isFav = true
+                }
+            })
         })
-    })
+    }
 
     return allAssets
 }

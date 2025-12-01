@@ -1,6 +1,6 @@
 let { getAssetsByAction, getFavoritesAssets, getPopularAssets } = require("../utils/assetsController")
 exports.getDashboard = async (req, res, next) => {
-    let assets = await getPopularAssets(req.user)
+    let assets = await getPopularAssets(req.user||null)
     return res.render("dashboard", {
         action: "dashboard",
         isLogin: !!req.user,
