@@ -10,6 +10,6 @@ exports.get = async (action) => {
         })
         return response
     } catch (error) {
-        throw buildError({ status: 500, message: "Failed to request to API" })
+        throw buildError({ status: 500, title: "Failed to request to API", message: error.message })
     }
 }

@@ -1,5 +1,6 @@
 let { Assets, Users, Favorites, Populars } = require("../db/mysql")
 let api = require("../services/api")
+const buildError = require("./buildError")
 let { getAssetsByAction } = require("./redis")
 
 async function getAssetsFromMysqlDB(action) {
@@ -159,7 +160,11 @@ exports.getAssetsByActionForSave = async (action) => {
         let assets = await selectAssets(dbAssets, allAssets)
         return assets
     } catch (error) {
-        throw error
+        throw buildError({
+            title: "get assets failed",
+            message: error.message,
+            status: 500
+        })
     }
 }
 exports.getAssetsByAction = async (action, user) => {
@@ -168,7 +173,11 @@ exports.getAssetsByAction = async (action, user) => {
         assets = await updateAssetsForAddFavorite(assets, user)
         return assets
     } catch (error) {
-        throw error
+        throw buildError({
+            title: "get assets failed",
+            message: error.message,
+            status: 500
+        })
     }
 }
 exports.getFavoritesAssets = async (user) => {
@@ -184,7 +193,11 @@ exports.getFavoritesAssets = async (user) => {
         assets = await updateAssetsForAddFavorite(assets, user)
         return assets
     } catch (error) {
-        throw error
+        throw buildError({
+            title: "get assets failed",
+            message: error.message,
+            status: 500
+        })
     }
 }
 exports.addOrRemoveFavoriteAsset = async (user, symbol) => {
@@ -195,7 +208,11 @@ exports.addOrRemoveFavoriteAsset = async (user, symbol) => {
 
         return response
     } catch (error) {
-        throw error
+        throw buildError({
+            title: "get assets failed",
+            message: error.message,
+            status: 500
+        })
     }
 }
 exports.getPopularAssets = async (user) => {
@@ -209,6 +226,10 @@ exports.getPopularAssets = async (user) => {
         let assets = await updateAssetsForAddFavorite(allAssets, user)
         return assets
     } catch (error) {
-        throw error
+        throw buildError({
+            title: "get assets failed",
+            message: error.message,
+            status: 500
+        })
     }
 }

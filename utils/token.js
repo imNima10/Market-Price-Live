@@ -1,5 +1,6 @@
 let { Users } = require("../db/mysql")
 let JWT = require("jsonwebtoken")
+let buildError = require("./buildError")
 
 exports.createAccessToken = async (user) => {
     try {
@@ -8,11 +9,11 @@ exports.createAccessToken = async (user) => {
         })
         return token
     } catch (error) {
-        throw {
-            message: "Failed to create access token",
-            data: error.message,
+        throw buildError({
+            title: "Failed to create access token",
+            message: error.message,
             status: 500
-        }
+        })
     }
 }
 
@@ -23,11 +24,11 @@ exports.createRefreshToken = async (user) => {
         })
         return token
     } catch (error) {
-        throw {
-            message: "Failed to create refresh token",
-            data: error.message,
+        throw buildError({
+            title: "Failed to create refresh token",
+            message: error.message,
             status: 500
-        }
+        })
     }
 }
 
@@ -40,11 +41,11 @@ exports.verifyAccessToken = async (token) => {
         }
         return isUserExists
     } catch (error) {
-        throw {
-            message: "Access token verification failed",
-            status: 401,
-            data: error.message
-        }
+        throw buildError({
+            title: "Access token verification failed",
+            message: error.message,
+            status: 401
+        })
     }
 }
 
@@ -57,10 +58,10 @@ exports.verifyRefreshToken = async (token) => {
         }
         return isUserExists
     } catch (error) {
-        throw {
-            message: "Refresh token verification failed",
-            status: 401,
-            data: error.message
-        }
+        throw buildError({
+            title: "Refresh token verification failed",
+            message: error.message,
+            status: 401
+        })
     }
 }

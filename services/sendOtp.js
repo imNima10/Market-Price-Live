@@ -19,6 +19,6 @@ module.exports = async ({ email, otp }) => {
         }
         await transporter.sendMail(mailOptions)
     } catch (error) {
-        throw await buildError({ status: 500, message: "Failed to send OTP" })
+        throw await buildError({ status: 500, title: "Failed to send OTP", message: error.message })
     }
 }
