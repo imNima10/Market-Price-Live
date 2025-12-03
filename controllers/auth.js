@@ -14,11 +14,12 @@ exports.getLoginPage = (req, res) => {
 
 exports.login = async (req, res, next) => {
     try {
-        let { email } = req.body
-
+        let { email, userKey } = req.body
+        if (!userKey) {
+            userKey = uuidV4()
+            await setUserKey(userKey, email, 5)
+        }
         let otp = await createOtp(6)
-        let userKey = uuidV4()
-        await setUserKey(userKey, email, 5)
         await setOtp(userKey, otp, 1)
 
         await sendOtp({ email, otp })
@@ -37,12 +38,18 @@ exports.otpVerify = async (req, res, next) => {
 
         let email = await getUserKeyDetails(userKey)
         if (email.expired) {
-            throw buildError({ title: "Invalid link", message: "Invalid or expired login link , please request a new one", status: 401 })
+            req.flash("error", "لینک نامعتبر است!")
+            req.flash("error2", "لطفا دوباره تلاش کنید.")
+            return res.redirect("/auth/login")
         }
         email = email.email
         let isOtpExists = await getOtpDetails(userKey)
         if (isOtpExists.expired) {
-            throw buildError({ title: "OTP has expired", message: "OTP has expired, please request a new one", status: 400 })
+            req.flash("expireError", "زمان کد یک بار مصرف به پایان رسید.")
+            req.flash("expireError2", "دوباره ارسال شود؟")
+            return res.render("otp",{
+                userKey
+            })
         }
 
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)

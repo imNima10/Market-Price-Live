@@ -46,10 +46,34 @@
       })
     } else if ("<%=locals.messages.error%>") {
       Swal.fire({
-        title: "Error",
-        text: "<%=locals.messages.error%>",
+        title: "<%=locals.messages.expireError%>",
+        text: "<%=locals.messages.expireError2%>",
         icon: "error",
-        button: "try again",
+        showDenyButton: true,
+        confirmButtonText: `ارسال مجدد`,
+        denyButtonText: `لغو`
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/auth/login";
+
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = "userKey";
+          input.value = "<%=userKey%>";
+
+          form.appendChild(input);
+
+          document.body.appendChild(form);
+          form.submit();
+        } else if (result.isDenied) {
+          const form = document.createElement("form");
+          form.method = "GET";
+          form.action = "/auth/login";
+          document.body.appendChild(form);
+          form.submit();
+        }
       })
     }
   </script>
