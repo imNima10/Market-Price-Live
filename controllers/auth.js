@@ -24,6 +24,7 @@ exports.login = async (req, res, next) => {
 
         await sendOtp({ email, otp })
 
+        req.flash("success", "کد یک بار مصرف ارسال شد!")
         return res.render("otp", {
             userKey
         })
@@ -81,6 +82,7 @@ exports.otpVerify = async (req, res, next) => {
 
         await deleteRefreshToken(user)
         await saveRefreshToken(user, refreshToken)
+        req.flash("success", "خوش اومدی!")
         return res.redirect("/p")
     } catch (error) {
         next(error)
@@ -98,6 +100,7 @@ exports.logout = async (req, res, next) => {
 
         await deleteRefreshToken(user)
 
+        req.flash("success", "به امید دیدار!")
         return res.redirect("/auth/login")
     } catch (error) {
         next(error)

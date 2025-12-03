@@ -39,12 +39,11 @@
   <script>
     if ("<%=locals.messages.success%>") {
       Swal.fire({
-        title: "Success",
-        text: "<%=locals.messages.success%>",
+        title: "<%=locals.messages.success%>",
         icon: "success",
-        button: "ok",
-      })
-    } else if ("<%=locals.messages.error%>") {
+        draggable: true
+      });
+    } else if ("<%=locals.messages.expireError%>") {
       Swal.fire({
         title: "<%=locals.messages.expireError%>",
         text: "<%=locals.messages.expireError2%>",

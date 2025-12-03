@@ -196,18 +196,10 @@
   <script>
     if ("<%=locals.messages.success%>") {
       Swal.fire({
-        title: "Success",
-        text: "<%=locals.messages.success%>",
+        title: "<%=locals.messages.success%>",
         icon: "success",
-        button: "ok",
-      })
-    } else if ("<%=locals.messages.error%>") {
-      Swal.fire({
-        title: "Error",
-        text: "<%=locals.messages.error%>",
-        icon: "error",
-        button: "try again",
-      })
+        draggable: true
+      });
     }
   </script>
 
