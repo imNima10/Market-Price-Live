@@ -192,6 +192,25 @@
   </div>
 
   <script src="/js/index.js"></script>
+  <script src="/js/sweetalert.js"></script>
+  <script>
+    if ("<%=locals.messages.success%>") {
+      Swal.fire({
+        title: "Success",
+        text: "<%=locals.messages.success%>",
+        icon: "success",
+        button: "ok",
+      })
+    } else if ("<%=locals.messages.error%>") {
+      Swal.fire({
+        title: "Error",
+        text: "<%=locals.messages.error%>",
+        icon: "error",
+        button: "try again",
+      })
+    }
+  </script>
+
 </body>
 
 </html>
