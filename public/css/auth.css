@@ -119,3 +119,11 @@ input[type="email"]{
   from{opacity:0;transform:translateY(20px)}
   to{opacity:1;transform:translateY(0)}
 }
+
+.validation-error {
+  color: #f56565;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
+  text-align: center;
+}

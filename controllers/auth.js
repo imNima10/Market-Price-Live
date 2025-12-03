@@ -5,7 +5,6 @@ let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
 let sendOtp = require("../services/sendOtp")
-let logger = require("../utils/logger")
 let { createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken } = require("../utils/token")
 let redis = require("../db/redis")
 
@@ -48,7 +47,10 @@ exports.otpVerify = async (req, res, next) => {
 
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
-            throw buildError({ title: "Incorrect OTP", message: "Incorrect OTP, please try again", status: 400 })
+            req.flash("inlineError", "کد یک بار مصرف نادرست است.")
+            return res.render("otp", {
+                userKey
+            })
         }
 
         let user = await Users.findOne({ where: { email }, raw: true })

@@ -26,6 +26,11 @@
       </div>
 
       <button type="submit" class="btn">ورود</button>
+      <%if(locals.messages.inlineError){%>
+        <span class="validation-error">
+          <%=locals.messages.inlineError%>
+        </span>
+        <%}%>
     </form>
   </div>
 

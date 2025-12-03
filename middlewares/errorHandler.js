@@ -5,6 +5,8 @@ module.exports = (err, req, res, next) => {
 
     logger(err)
 
+    err.status = err.status ? err.status : 500
+
     switch (err.status) {
         case 500:
             err = {
