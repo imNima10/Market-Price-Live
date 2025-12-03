@@ -13,24 +13,37 @@
 
 <body>
   <div class="error-box glass">
-    <div class="emoji">🔍</div>
+    <% switch (status) { case 404 : %>
+      <div class="emoji">🔍</div>
+      <% break; case 500 : %>
+        <div class="emoji">💔</div>
+        <% break; case 403 : %>
+          <div class="emoji">🧐</div>
+          <% break; case 401 : %>
+            <div class="emoji">🚫</div>
+            <% break; } %>
 
-    <h1>
-      <%=title%>
-    </h1>
+              <h1>
+                <%=title%>
+              </h1>
 
-    <p class="desc">
-      <%=message%>
-    </p>
+              <p class="desc">
+                <%=message%>
+              </p>
 
-    <button class="btn">
-      <%if(status==401){%>
-        ورود
-        <%}else{%>
-          بازگشت به
-          داشبورد
-          <%}%>
-    </button>
+              <%if(status==401){%>
+                <form action="/auth/login" method="get">
+                  <button class="btn">
+                    ورود
+                  </button>
+                  <%}else{%>
+                    <form action="/p" method="get">
+                      <button class="btn">
+                        بازگشت به
+                        داشبورد
+                      </button>
+                      <%}%>
+                    </form>
   </div>
 
 </body>
