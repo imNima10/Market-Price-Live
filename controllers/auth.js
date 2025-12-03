@@ -28,11 +28,7 @@ exports.login = async (req, res, next) => {
             userKey
         })
     } catch (error) {
-        next({
-            status: error.status || 500,
-            error: "Local Login Error",
-            message: error.message
-        })
+        next(error)
     }
 }
 
@@ -47,12 +43,12 @@ exports.otpVerify = async (req, res, next) => {
         email = email.email
         let isOtpExists = await getOtpDetails(userKey)
         if (isOtpExists.expired) {
-            throw buildError({ title: "OTP has expired", message: "OTP has expired, please request a new one", status: 401 })
+            throw buildError({ title: "OTP has expired", message: "OTP has expired, please request a new one", status: 400 })
         }
 
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
-            throw buildError({ title: "Incorrect OTP", message: "Incorrect OTP, please try again", status: 401 })
+            throw buildError({ title: "Incorrect OTP", message: "Incorrect OTP, please try again", status: 400 })
         }
 
         let user = await Users.findOne({ where: { email }, raw: true })

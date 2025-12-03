@@ -9,6 +9,6 @@ exports.favorites = async (req, res, next) => {
         
         res.redirect("/p/favorites")
     } catch (error) {
-
+        next(error)
     }
 }
