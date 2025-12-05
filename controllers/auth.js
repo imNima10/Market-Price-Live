@@ -1,6 +1,7 @@
 let buildError = require("../utils/buildError")
 let { createOtp } = require("../utils/otp")
-let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUserKeyPattern, delUserKey, delOtp, deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, delUserKey, delOtp } = require("../utils/auth")
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
@@ -48,7 +49,7 @@ exports.otpVerify = async (req, res, next) => {
         if (isOtpExists.expired) {
             req.flash("expireError", "زمان کد یک بار مصرف به پایان رسید.")
             req.flash("expireError2", "دوباره ارسال شود؟")
-            return res.render("otp",{
+            return res.render("otp", {
                 userKey
             })
         }
