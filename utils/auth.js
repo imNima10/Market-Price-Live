@@ -16,6 +16,7 @@ function getUserKeyUsesPattern(userKey) {
 async function setUserKey(userKey, email, expireTime) {
     await redis.set(getUserKeyPattern(userKey), email, "EX", expireTime * 60)
     await redis.set(getUserKeyUsesPattern(userKey), 1, "EX", expireTime * 60)
+    await redis.set(getUserKeyBackUpPattern(email), userKey, "EX", expireTime * 60)
 }
 
 async function getUserKeyDetails({ userKey, email }) {
@@ -24,7 +25,7 @@ async function getUserKeyDetails({ userKey, email }) {
     }
     let userKeyPattern = getUserKeyPattern(userKey)
     let userKeyUsesPattern = getUserKeyUsesPattern(userKey)
-    let theUserKey = await redis.get(userKeyPattern)
+    let theUserKey = await redis.get(getUserKeyPattern(userKey))
     let theUserKeyUses = await redis.get(userKeyUsesPattern)
     if (!theUserKey) {
         return {
@@ -36,11 +37,13 @@ async function getUserKeyDetails({ userKey, email }) {
     let min = Math.floor(remainingTime / 60)
     let sec = Math.floor(remainingTime % 60)
     let time = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`
+
     return {
         expired: false,
         remainingTime: time,
         email: theUserKey,
-        hasFreeUses: parseInt(theUserKeyUses || 1) <= 3
+        hasFreeUses: parseInt(theUserKeyUses) <= 3,
+        userKey
     }
 }
 
@@ -80,7 +83,7 @@ async function getOtpDetails(userKey) {
         expired: false,
         remainingTime: time,
         otp,
-        hasFreeUses: parseInt(otpUses || 1) <= 3
+        hasFreeUses: parseInt(otpUses) <= 3
     }
 }
 

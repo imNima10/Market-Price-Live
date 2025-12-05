@@ -9,7 +9,8 @@ const { auth_loginSchema, auth_verifySchema } = require("../validators")
 
 router.get("/login", controller.getLoginPage)
 
-router.post("/otp", validator({ validate: auth_loginSchema, from: "body", inline: true }), controller.login)
+// router.post("/otp", validator({ validate: auth_loginSchema, from: "body", inline: true }), controller.login)
+router.post("/otp", controller.login)
 
 router.get("/otp/:userKey", controller.getOtpPage)
 
