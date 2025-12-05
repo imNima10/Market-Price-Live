@@ -99,6 +99,13 @@ async function delOtp(userKey) {
     await redis.del(getOtpUsesPattern(userKey))
 }
 
+async function incrUserKeyUses(userKey) {
+    await redis.incr(getUserKeyUsesPattern(userKey))
+}
+async function incrOtpUses(userKey) {
+    await redis.incr(getOtpUsesPattern(userKey))
+}
+
 module.exports = {
     setUserKey,
     getUserKeyDetails,
@@ -106,4 +113,6 @@ module.exports = {
     getOtpDetails,
     delOtp,
     delUserKey,
+    incrOtpUses,
+    incrUserKeyUses
 }

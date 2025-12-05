@@ -1,7 +1,7 @@
 let buildError = require("../utils/buildError")
 let { createOtp } = require("../utils/otp")
 let { deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
-let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, delUserKey, delOtp } = require("../utils/auth")
+let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, delUserKey, delOtp, incrOtpUses, incrUserKeyUses } = require("../utils/auth")
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
@@ -47,30 +47,38 @@ exports.otpVerify = async (req, res, next) => {
     try {
         let { userKey, otp } = req.body
 
-        let email = await getUserKeyDetails(userKey)
+        let email = await getUserKeyDetails({ userKey })
         if (email.expired) {
             req.flash("error", "لینک نامعتبر است!")
             req.flash("error2", "لطفا دوباره تلاش کنید.")
             return res.redirect("/auth/login")
+        } else if (!email.hasFreeUses) {
+            req.flash("error", "اعتبار لینک تمام شد.")
+            req.flash("error2", "لطفا دوباره تلاش کنید.")
+            return res.redirect("/auth/login")
         }
-        email = email.email
+
         let isOtpExists = await getOtpDetails(userKey)
         if (isOtpExists.expired) {
             req.flash("expireError", "زمان کد یک بار مصرف به پایان رسید.")
             req.flash("expireError2", "دوباره ارسال شود؟")
-            return res.render("otp", {
-                userKey
-            })
+            await delOtp(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
+        } else if (!isOtpExists.hasFreeUses) {
+            req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+            req.flash("expireError2", "دوباره ارسال شود؟")
+            await delOtp(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
         }
-
+        
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
+            await incrOtpUses(userKey)
             req.flash("inlineError", "کد یک بار مصرف نادرست است.")
-            return res.render("otp", {
-                userKey
-            })
+            return res.redirect(`/auth/otp/${userKey}`)
         }
 
+        email = email.email
         let user = await Users.findOne({ where: { email }, raw: true })
 
         if (!user) {
@@ -78,7 +86,7 @@ exports.otpVerify = async (req, res, next) => {
             user = await Users.create({ email, role: isFirstUser == 0 ? "ADMIN" : "USER" })
         }
 
-        await delUserKey(userKey)
+        await delUserKey({ userKey })
         await delOtp(userKey)
 
         let accessToken = await createAccessToken(user)
@@ -98,6 +106,7 @@ exports.otpVerify = async (req, res, next) => {
         next(error)
     }
 }
+
 exports.logout = async (req, res, next) => {
     try {
         let user = req.user
