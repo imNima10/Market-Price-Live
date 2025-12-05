@@ -26,6 +26,15 @@ exports.login = async (req, res, next) => {
         await sendOtp({ email, otp })
 
         req.flash("success", "کد یک بار مصرف ارسال شد!")
+        return res.redirect(`/auth/otp/${userKey}`)
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.getOtpPage = async (req, res, next) => {
+    try {
+        let { userKey } = req.params
         return res.render("otp", {
             userKey
         })
