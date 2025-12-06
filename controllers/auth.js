@@ -27,9 +27,9 @@ exports.login = async (req, res, next) => {
                 req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد جدید`)
                 return res.redirect("/auth/login")
             }
-            
-            const otpDetails = await getOtpDetails(userKeyDetails.userKey)
-            
+
+            let otpDetails = await getOtpDetails(userKeyDetails.userKey)
+
             if (!otpDetails.expired) {
                 req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
                 req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد جدید`)
@@ -40,8 +40,7 @@ exports.login = async (req, res, next) => {
             email = userKeyDetails.email
             userKey = userKeyDetails.userKey
 
-            await incrUserKeyUses(userKey)
-        } else if (email) {            
+        } else if (email) {
             userKey = uuidV4()
             await setUserKey(userKey, email, 5)
             otp = await createOtp(6)
@@ -105,6 +104,16 @@ exports.otpVerify = async (req, res, next) => {
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
             await incrOtpUses(userKey)
+
+            let isOtpExists = await getOtpDetails(userKey)
+            if (!isOtpExists.hasFreeUses) {
+                req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+                req.flash("expireError2", "دوباره ارسال شود؟")
+                await delOtp(userKey)
+                await incrUserKeyUses(userKey)
+                return res.redirect(`/auth/otp/${userKey}`)
+            }
+
             req.flash("inlineError", "کد یک بار مصرف نادرست است.")
             return res.redirect(`/auth/otp/${userKey}`)
         }
