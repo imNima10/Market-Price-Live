@@ -17,54 +17,42 @@ exports.login = async (req, res, next) => {
     try {
         let { email, userKey } = req.body
         let otp;
-        if (userKey) {
-            let userKeyDetails = await getUserKeyDetails({ userKey })
-            if (!userKeyDetails.expired && userKeyDetails.hasFreeUses && !userKeyDetails.remainingTime.startsWith("00")) {
-                let otpDetails = await getOtpDetails(userKeyDetails.userKey)
-                if (!otpDetails.expired) {
-                    req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
-                    req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد یک بار مصرف جدید`)
-                    return res.redirect("/auth/login")
-                } else {
-                    otp = await createOtp(6)
-                }
-                email = userKeyDetails.email
-            } else {
+        let userKeyDetails = userKey
+            ? await getUserKeyDetails({ userKey })
+            : await getUserKeyDetails({ email })
+
+        if (!userKeyDetails.expired) {
+            if (!userKeyDetails.hasFreeUses) {
                 req.flash("error", "ایمیل شما نمیتواند کد جدید دریافت کند!")
-                req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد یک بار مصرف جدید`)
+                req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد جدید`)
                 return res.redirect("/auth/login")
             }
-        } else if (email) {
-            let userKeyDetails = await getUserKeyDetails({ email })
-
-            if (!userKeyDetails.expired) {
-                if (userKeyDetails.hasFreeUses && !userKeyDetails.remainingTime.startsWith("00")) {
-                    let otpDetails = await getOtpDetails(userKeyDetails.userKey)
-
-                    if (!otpDetails.expired) {
-                        req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
-                        req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد یک بار مصرف جدید`)
-                        return res.redirect("/auth/login")
-                    } else {
-                        otp = await createOtp(6)
-                    }
-                    otp = otpDetails
-                    email = userKeyDetails.email
-                    userKey = userKeyDetails.userKey
-                } else {
-                    req.flash("error", "ایمیل شما نمیتواند کد جدید دریافت کند!")
-                    req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد یک بار مصرف جدید`)
-                    return res.redirect("/auth/login")
-                }
-            } else {
-                userKey = uuidV4()
-                await setUserKey(userKey, email, 5)
-                otp = await createOtp(6)
+            
+            const otpDetails = await getOtpDetails(userKeyDetails.userKey)
+            
+            if (!otpDetails.expired) {
+                req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
+                req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد جدید`)
+                return res.redirect("/auth/login")
             }
 
+            otp = await createOtp(6)
+            email = userKeyDetails.email
+            userKey = userKeyDetails.userKey
+
+            await incrUserKeyUses(userKey)
+        } else if (email) {            
+            userKey = uuidV4()
+            await setUserKey(userKey, email, 5)
+            otp = await createOtp(6)
+        } else {
+            req.flash("error", "اطلاعات ورود نامعتبر است")
+            req.flash("error2", "لطفا دوباره اطلاعات خود را وارد کنید!")
+            return res.redirect("/auth/login")
         }
 
         await setOtp(userKey, otp, 1)
+        await sendOtp({ email, otp })
 
         await sendOtp({ email, otp })
         req.flash("success", "کد یک بار مصرف ارسال شد!")
