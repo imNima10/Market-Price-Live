@@ -1,26 +1,34 @@
 let { getAssetsByAction, getFavoritesAssets, getPopularAssets } = require("../utils/assetsController")
 exports.getDashboard = async (req, res, next) => {
-    let assets = await getPopularAssets(req.user||null)
-    return res.render("dashboard", {
-        action: "dashboard",
-        isLogin: !!req.user,
-        assets
-    })
+    try {
+        let assets = await getPopularAssets(req.user || null)
+        return res.render("dashboard", {
+            action: "dashboard",
+            isLogin: !!req.user,
+            assets
+        })
+    } catch (error) {
+        next(error)
+    }
 }
 
 exports.getByAction = async (req, res, next) => {
-    let { action } = req.params
-    let user = req.user
+    try {
+        let { action } = req.params
+        let user = req.user
 
-    let assets
-    if (action == "favorites") {
-        assets = await getFavoritesAssets(user)
-    } else {
-        assets = await getAssetsByAction(action, user)
+        let assets
+        if (action == "favorites") {
+            assets = await getFavoritesAssets(user)
+        } else {
+            assets = await getAssetsByAction(action, user)
+        }
+        return res.render("dashboard", {
+            action,
+            isLogin: true,
+            assets
+        })
+    } catch (error) {
+        next(error)
     }
-    return res.render("dashboard", {
-        action,
-        isLogin: true,
-        assets
-    })
 }

@@ -5,6 +5,8 @@ let app = express()
 let cookieParser = require("cookie-parser")
 let cors = require("cors")
 let helmet = require("helmet")
+let flash = require("express-flash")
+let session = require("express-session")
 
 let authRouter = require("./routers/auth")
 let userRouter = require("./routers/user")
@@ -18,6 +20,12 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(cookieParser())
 app.use(cors())
+app.use(session({
+    saveUninitialized: false,
+    resave: false,
+    secret: process.env.SESSION_SECRET
+}))
+app.use(flash())
 app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
@@ -37,7 +45,7 @@ app.use((req, res) => {
     return res.render("error", {
         status: 404,
         title: "404 - پیدا نشد",
-        message: "صفحه‌ای که دنبال آن هستید یافت نشد یا حذف شده است."
+        message: "صفحه‌ یا دیتایی که دنبال آن هستید یافت نشد یا حذف شده است."
     })
 })
 

@@ -192,6 +192,17 @@
   </div>
 
   <script src="/js/index.js"></script>
+  <script src="/js/sweetalert.js"></script>
+  <script>
+    if ("<%=locals.messages.success%>") {
+      Swal.fire({
+        title: "<%=locals.messages.success%>",
+        icon: "success",
+        draggable: true
+      });
+    }
+  </script>
+
 </body>
 
 </html>

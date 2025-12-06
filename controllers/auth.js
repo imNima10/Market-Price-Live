@@ -1,11 +1,11 @@
 let buildError = require("../utils/buildError")
 let { createOtp } = require("../utils/otp")
-let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUserKeyPattern, delUserKey, delOtp, deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, delUserKey, delOtp, incrOtpUses, incrUserKeyUses } = require("../utils/auth")
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
 let sendOtp = require("../services/sendOtp")
-let logger = require("../utils/logger")
 let { createAccessToken, createRefreshToken, verifyAccessToken, verifyRefreshToken } = require("../utils/token")
 let redis = require("../db/redis")
 
@@ -15,24 +15,60 @@ exports.getLoginPage = (req, res) => {
 
 exports.login = async (req, res, next) => {
     try {
-        let { email } = req.body
+        let { email, userKey } = req.body
+        let otp;
+        let userKeyDetails = userKey
+            ? await getUserKeyDetails({ userKey })
+            : await getUserKeyDetails({ email })
 
-        let otp = await createOtp(6)
-        let userKey = uuidV4()
-        await setUserKey(userKey, email, 5)
+        if (!userKeyDetails.expired) {
+            if (!userKeyDetails.hasFreeUses) {
+                req.flash("error", "ایمیل شما نمیتواند کد جدید دریافت کند!")
+                req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد جدید`)
+                return res.redirect("/auth/login")
+            }
+
+            let otpDetails = await getOtpDetails(userKeyDetails.userKey)
+
+            if (!otpDetails.expired) {
+                req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
+                req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد جدید`)
+                return res.redirect("/auth/login")
+            }
+
+            otp = await createOtp(6)
+            email = userKeyDetails.email
+            userKey = userKeyDetails.userKey
+
+        } else if (email) {
+            userKey = uuidV4()
+            await setUserKey(userKey, email, 5)
+            otp = await createOtp(6)
+        } else {
+            req.flash("error", "اطلاعات ورود نامعتبر است")
+            req.flash("error2", "لطفا دوباره اطلاعات خود را وارد کنید!")
+            return res.redirect("/auth/login")
+        }
+
         await setOtp(userKey, otp, 1)
-
         await sendOtp({ email, otp })
 
+        await sendOtp({ email, otp })
+        req.flash("success", "کد یک بار مصرف ارسال شد!")
+        return res.redirect(`/auth/otp/${userKey}`)
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.getOtpPage = async (req, res, next) => {
+    try {
+        let { userKey } = req.params
         return res.render("otp", {
             userKey
         })
     } catch (error) {
-        next({
-            status: error.status || 500,
-            error: "Local Login Error",
-            message: error.message
-        })
+        next(error)
     }
 }
 
@@ -40,21 +76,49 @@ exports.otpVerify = async (req, res, next) => {
     try {
         let { userKey, otp } = req.body
 
-        let email = await getUserKeyDetails(userKey)
+        let email = await getUserKeyDetails({ userKey })
         if (email.expired) {
-            throw buildError({ title: "Invalid link", message: "Invalid or expired login link , please request a new one", status: 401 })
+            req.flash("error", "لینک نامعتبر است!")
+            req.flash("error2", "لطفا دوباره تلاش کنید.")
+            return res.redirect("/auth/login")
+        } else if (!email.hasFreeUses) {
+            req.flash("error", "اعتبار لینک تمام شد.")
+            req.flash("error2", "لطفا دوباره تلاش کنید.")
+            return res.redirect("/auth/login")
         }
-        email = email.email
+
         let isOtpExists = await getOtpDetails(userKey)
         if (isOtpExists.expired) {
-            throw buildError({ title: "OTP has expired", message: "OTP has expired, please request a new one", status: 401 })
+            req.flash("expireError", "زمان کد یک بار مصرف به پایان رسید.")
+            req.flash("expireError2", "دوباره ارسال شود؟")
+            await delOtp(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
+        } else if (!isOtpExists.hasFreeUses) {
+            req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+            req.flash("expireError2", "دوباره ارسال شود؟")
+            await delOtp(userKey)
+            await incrUserKeyUses(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
         }
 
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
-            throw buildError({ title: "Incorrect OTP", message: "Incorrect OTP, please try again", status: 401 })
+            await incrOtpUses(userKey)
+
+            let isOtpExists = await getOtpDetails(userKey)
+            if (!isOtpExists.hasFreeUses) {
+                req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+                req.flash("expireError2", "دوباره ارسال شود؟")
+                await delOtp(userKey)
+                await incrUserKeyUses(userKey)
+                return res.redirect(`/auth/otp/${userKey}`)
+            }
+
+            req.flash("inlineError", "کد یک بار مصرف نادرست است.")
+            return res.redirect(`/auth/otp/${userKey}`)
         }
 
+        email = email.email
         let user = await Users.findOne({ where: { email }, raw: true })
 
         if (!user) {
@@ -62,7 +126,7 @@ exports.otpVerify = async (req, res, next) => {
             user = await Users.create({ email, role: isFirstUser == 0 ? "ADMIN" : "USER" })
         }
 
-        await delUserKey(userKey)
+        await delUserKey({ userKey })
         await delOtp(userKey)
 
         let accessToken = await createAccessToken(user)
@@ -76,11 +140,13 @@ exports.otpVerify = async (req, res, next) => {
 
         await deleteRefreshToken(user)
         await saveRefreshToken(user, refreshToken)
+        req.flash("success", "خوش اومدی!")
         return res.redirect("/p")
     } catch (error) {
         next(error)
     }
 }
+
 exports.logout = async (req, res, next) => {
     try {
         let user = req.user
@@ -93,6 +159,7 @@ exports.logout = async (req, res, next) => {
 
         await deleteRefreshToken(user)
 
+        req.flash("success", "به امید دیدار!")
         return res.redirect("/auth/login")
     } catch (error) {
         next(error)

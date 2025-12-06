@@ -26,10 +26,56 @@
       </div>
 
       <button type="submit" class="btn">ورود</button>
+      <%if(locals.messages.inlineError){%>
+        <span class="validation-error">
+          <%=locals.messages.inlineError%>
+        </span>
+        <%}%>
     </form>
   </div>
 
   <script src="/js/otp.js"></script>
+  <script src="/js/sweetalert.js"></script>
+  <script>
+    if ("<%=locals.messages.success%>") {
+      Swal.fire({
+        title: "<%=locals.messages.success%>",
+        icon: "success",
+        draggable: true
+      });
+    } else if ("<%=locals.messages.expireError%>") {
+      Swal.fire({
+        title: "<%=locals.messages.expireError%>",
+        text: "<%=locals.messages.expireError2%>",
+        icon: "error",
+        showDenyButton: true,
+        confirmButtonText: `ارسال مجدد`,
+        denyButtonText: `لغو`
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/auth/otp";
+
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = "userKey";
+          input.value = "<%=userKey%>";
+
+          form.appendChild(input);
+
+          document.body.appendChild(form);
+          form.submit();
+        } else if (result.isDenied) {
+          const form = document.createElement("form");
+          form.method = "GET";
+          form.action = "/auth/login";
+          document.body.appendChild(form);
+          form.submit();
+        }
+      })
+    }
+  </script>
 </body>
 
 </html>
