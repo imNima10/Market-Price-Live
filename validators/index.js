@@ -17,12 +17,26 @@ exports.home_actionSchema = yup.object({
 exports.auth_loginSchema = yup.object({
     email: yup
         .string()
-        .required("ایمیل ضروری هست")
+        .trim()
         .matches(
             /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
             "ایمیل معتبر وارد کنید"
-        ),
-});
+        )
+        .notRequired(),
+
+    userKey: yup
+        .string()
+        .trim()
+        .notRequired(),
+
+}).test(
+    "email-or-userKey",
+    "وارد کردن ایمیل یا کلید کاربری الزامی است",
+    function (values) {
+        return Boolean(values.email || values.userKey)
+    }
+)
+
 
 exports.auth_verifySchema = yup.object({
     otp: yup
