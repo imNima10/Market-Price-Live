@@ -1,6 +1,7 @@
 let buildError = require("../utils/buildError")
 let { createOtp } = require("../utils/otp")
-let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, getOtpPattern, getUserKeyPattern, delUserKey, delOtp, deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { deleteRefreshToken, saveRefreshToken } = require("../utils/redis")
+let { setOtp, setUserKey, getUserKeyDetails, getOtpDetails, delUserKey, delOtp, incrOtpUses, incrUserKeyUses } = require("../utils/auth")
 let uuidV4 = require("uuid").v4
 let { Users } = require("../db/mysql")
 let bcrypt = require("bcrypt")
@@ -15,16 +16,54 @@ exports.getLoginPage = (req, res) => {
 exports.login = async (req, res, next) => {
     try {
         let { email, userKey } = req.body
-        if (!userKey) {
+        let otp;
+        let userKeyDetails = userKey
+            ? await getUserKeyDetails({ userKey })
+            : await getUserKeyDetails({ email })
+
+        if (!userKeyDetails.expired) {
+            if (!userKeyDetails.hasFreeUses) {
+                req.flash("error", "ایمیل شما نمیتواند کد جدید دریافت کند!")
+                req.flash("error2", `${userKeyDetails.remainingTime} تا دریافت کد جدید`)
+                return res.redirect("/auth/login")
+            }
+
+            let otpDetails = await getOtpDetails(userKeyDetails.userKey)
+
+            if (!otpDetails.expired) {
+                req.flash("error", "شما یک کد یک بار مصرف فعال دارید!")
+                req.flash("error2", `${otpDetails.remainingTime} تا دریافت کد جدید`)
+                return res.redirect("/auth/login")
+            }
+
+            otp = await createOtp(6)
+            email = userKeyDetails.email
+            userKey = userKeyDetails.userKey
+
+        } else if (email) {
             userKey = uuidV4()
             await setUserKey(userKey, email, 5)
+            otp = await createOtp(6)
+        } else {
+            req.flash("error", "اطلاعات ورود نامعتبر است")
+            req.flash("error2", "لطفا دوباره اطلاعات خود را وارد کنید!")
+            return res.redirect("/auth/login")
         }
-        let otp = await createOtp(6)
-        await setOtp(userKey, otp, 1)
 
+        await setOtp(userKey, otp, 1)
         await sendOtp({ email, otp })
 
+        await sendOtp({ email, otp })
         req.flash("success", "کد یک بار مصرف ارسال شد!")
+        return res.redirect(`/auth/otp/${userKey}`)
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.getOtpPage = async (req, res, next) => {
+    try {
+        let { userKey } = req.params
         return res.render("otp", {
             userKey
         })
@@ -37,30 +76,49 @@ exports.otpVerify = async (req, res, next) => {
     try {
         let { userKey, otp } = req.body
 
-        let email = await getUserKeyDetails(userKey)
+        let email = await getUserKeyDetails({ userKey })
         if (email.expired) {
             req.flash("error", "لینک نامعتبر است!")
             req.flash("error2", "لطفا دوباره تلاش کنید.")
             return res.redirect("/auth/login")
+        } else if (!email.hasFreeUses) {
+            req.flash("error", "اعتبار لینک تمام شد.")
+            req.flash("error2", "لطفا دوباره تلاش کنید.")
+            return res.redirect("/auth/login")
         }
-        email = email.email
+
         let isOtpExists = await getOtpDetails(userKey)
         if (isOtpExists.expired) {
             req.flash("expireError", "زمان کد یک بار مصرف به پایان رسید.")
             req.flash("expireError2", "دوباره ارسال شود؟")
-            return res.render("otp",{
-                userKey
-            })
+            await delOtp(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
+        } else if (!isOtpExists.hasFreeUses) {
+            req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+            req.flash("expireError2", "دوباره ارسال شود؟")
+            await delOtp(userKey)
+            await incrUserKeyUses(userKey)
+            return res.redirect(`/auth/otp/${userKey}`)
         }
 
         let isOtpValid = await bcrypt.compare(otp, isOtpExists.otp)
         if (!isOtpValid) {
+            await incrOtpUses(userKey)
+
+            let isOtpExists = await getOtpDetails(userKey)
+            if (!isOtpExists.hasFreeUses) {
+                req.flash("expireError", "اعتبار کد یک بار مصرف تمام شد.")
+                req.flash("expireError2", "دوباره ارسال شود؟")
+                await delOtp(userKey)
+                await incrUserKeyUses(userKey)
+                return res.redirect(`/auth/otp/${userKey}`)
+            }
+
             req.flash("inlineError", "کد یک بار مصرف نادرست است.")
-            return res.render("otp", {
-                userKey
-            })
+            return res.redirect(`/auth/otp/${userKey}`)
         }
 
+        email = email.email
         let user = await Users.findOne({ where: { email }, raw: true })
 
         if (!user) {
@@ -68,7 +126,7 @@ exports.otpVerify = async (req, res, next) => {
             user = await Users.create({ email, role: isFirstUser == 0 ? "ADMIN" : "USER" })
         }
 
-        await delUserKey(userKey)
+        await delUserKey({ userKey })
         await delOtp(userKey)
 
         let accessToken = await createAccessToken(user)
@@ -88,6 +146,7 @@ exports.otpVerify = async (req, res, next) => {
         next(error)
     }
 }
+
 exports.logout = async (req, res, next) => {
     try {
         let user = req.user
