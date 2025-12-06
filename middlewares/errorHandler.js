@@ -17,8 +17,9 @@ module.exports = (err, req, res, next) => {
 
     logger(err)
 
-    if (req.inline) {
-        //TODO
+    if (req.inline) {                
+        req.flash("inlineError", err.message)
+        return res.redirect(req.url)
     }
 
     err.status = err.status ? err.status : 500

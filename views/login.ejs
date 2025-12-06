@@ -18,6 +18,11 @@
       <input type="email" id="emailInput" name="email" required placeholder="example@mail.com">
 
       <button type="submit" class="btn">ادامه</button>
+      <%if(locals.messages.inlineError){%>
+        <span class="validation-error">
+          <%=locals.messages.inlineError%>
+        </span>
+        <%}%>
     </form>
   </div>
 

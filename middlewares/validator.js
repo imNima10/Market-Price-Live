@@ -25,7 +25,11 @@ module.exports = ({ validate, from = "body", url, inline = false, reqBody }) => 
         } catch (error) {
             if (inline) {
                 req.inline = true
-                //TODO
+                let thrUrl = url
+                if (reqBody) {
+                    thrUrl = `${url}/${req[from][reqBody]}`;
+                }
+                req.url = thrUrl
             }
             next(error);
         }

@@ -9,11 +9,11 @@ const { auth_loginSchema, auth_verifySchema } = require("../validators")
 
 router.get("/login", controller.getLoginPage)
 
-router.post("/otp", validator({ validate: auth_loginSchema, from: "body", inline: true }), controller.login)
+router.post("/otp", validator({ validate: auth_loginSchema, from: "body", inline: true, url: "/login" }), controller.login)
 
 router.get("/otp/:userKey", controller.getOtpPage)
 
-router.post("/verify", validator({ validate: auth_verifySchema, from: "body", inline: true }), controller.otpVerify)
+router.post("/verify", validator({ validate: auth_verifySchema, from: "body", url: "/otp", inline: true, reqBody: "userKey" }), controller.otpVerify)
 
 router.route("/logout")
     .post(authGuard(), controller.logout)
